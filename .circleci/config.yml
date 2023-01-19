@@ -1,14 +1,21 @@
-version: 2.1
-jobs:
-  build:
-    docker:
-      - image: alpine:3.15
-        auth:
+version: 2.1 # CircleCI プラットフォームのバージョン
+jobs: # jobs レベルには、子ジョブのコレクションが含まれ、ジョブを表しています。 これらのジョブの名前を指定します (build、test、deploy など)
+  build: # build は、jobs コレクションの最初の子ジョブです。 このサンプルでは、build は唯一のジョブでもあります
+    docker: # ジョブのコマンドが実行されるコンテナに対し Docker イメージを使用していることを示します
+      - image: cimg/base:2021.04 # Git をサポートする Docker イメージを示します。 cimg/base:2021.04 は、基本的なジョブを実行する Ubuntu ベースの小さなイメージです。
+        auth: # Docker レジストリの認証情報を記載します。 この部分はオプションです
           username: mydockerhub-user
-          password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
-    steps:
-      - run:
-          name: The First Step
-          command: |
+          password: $DOCKERHUB_PASSWORD # context / project UI env-var reference
+    steps: # steps コレクションは、run ディレクティブのリストです
+      - checkout # checkout コマンドは、Git リポジトリからコードをフェッチします
+      - run: # run ディレクティブは、宣言された順に実行されます
+          name: The First Step # name 属性は、警告、エラー、出力などを返す際に関連情報を提供します。 name は、ビルドプロセス内のアクションとしてわかりやすいものにする必要があります
+          command:
+            | # command 属性は、実行するシェルコマンドのリストです。 最初のパイプ | は、複数行のシェルコマンドがあることを示します
             echo 'Hello World!'
             echo 'This is the delivery pipeline'
+      - run: # build ジョブのこの 2 つ目のステップは、すでにチェックアウトされているリポジトリの内容を、(ls -al を使用して) リストします。 これで、このリポジトリでさらに多くのアクションを実行できます。
+          name: The Second Step
+          command: |
+            ls -al
+            echo '^^^The files in your repo^^^'
